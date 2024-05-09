@@ -7,11 +7,7 @@ namespace CONSWARE_Vhicles.Models
 	{
         public int idVehicle { get; set; }
 
-        public int idVehicleType { get; set; }
-
         public string name { get; set; }
-
-        public VehicleType vehicleType { get; set; }
 
         public DateTime creationDate { get; set; }
 

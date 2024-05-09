@@ -18,14 +18,14 @@ namespace CONSWARE_Vhicles.Controllers
             _vehicleTypeService = vehicleTypeService;
         }
 
-        [HttpGet("fuel_type")]
+        [HttpGet("fuel-type")]
         public IActionResult GetAllFuelTypes()
         {
             var fuelTypes = _fuelTypeService.GetAllFuelTypes();
             return Ok(fuelTypes);
         }
 
-        [HttpGet("fuel_type/{id}")]
+        [HttpGet("fuel-type/{id}")]
         public IActionResult GetFuelTypeById(int id)
         {
             var fuelType = _fuelTypeService.GetFuelTypeById(id);

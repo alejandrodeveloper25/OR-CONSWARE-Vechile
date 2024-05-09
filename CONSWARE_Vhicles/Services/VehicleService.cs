@@ -1,5 +1,6 @@
 ﻿using System;
 using CONSWARE_Vhicles.Data;
+using CONSWARE_Vhicles.Dtos;
 using CONSWARE_Vhicles.Models;
 
 namespace CONSWARE_Vhicles.Services
@@ -18,19 +19,17 @@ namespace CONSWARE_Vhicles.Services
         {
             var query = new QueryBuilder()
                 .InsertInto("vehicle")
-                .Columns("idVehicleType, name, creationDate, updateDate, active")
-                .Values($"{vehicle.idVehicleType}, {vehicle.name}, '{vehicle.creationDate.ToString("yyyy-MM-dd HH:mm:ss")}', '{vehicle.updateDate.ToString("yyyy-MM-dd HH:mm:ss")}', {Convert.ToInt32(vehicle.active)}")
+                .Columns("name, creationDate, updateDate, active")
+                .Values($"'{vehicle.name}', NOW(), NOW(), 1")
                 .Build();
+
+         
 
             _dataAccess.Execute(query);
 
-            // Obtener el último ID insertado
             int lastInsertedId = _dataAccess.GetLastInsertedId();
 
-            // Asignar el ID generado al objeto Vehicle
-            vehicle.idVehicle = lastInsertedId;
-
-            return vehicle;
+            return this.GetVehicleById(lastInsertedId);
         }
 
         // Método para obtener todos los vehículos
@@ -42,19 +41,6 @@ namespace CONSWARE_Vhicles.Services
                 .Build();
 
             var vehicles = _dataAccess.Query<Vehicle>(query);
-
-            // Para cada vehículo, obtener el tipo de vehículo correspondiente
-            foreach (var vehicle in vehicles)
-            {
-                var vehicleTypeQuery = new QueryBuilder()
-                    .Select("*")
-                    .From("vehicle_type")
-                    .Where($"idVehicleType = {vehicle.idVehicleType}")
-                    .Build();
-
-                var vehicleType = _dataAccess.QueryFirstOrDefault<VehicleType>(vehicleTypeQuery);
-                vehicle.vehicleType = vehicleType;
-            }
 
             return vehicles;
         }
@@ -70,20 +56,15 @@ namespace CONSWARE_Vhicles.Services
 
             var vehicle = _dataAccess.QueryFirstOrDefault<Vehicle>(query);
 
-            // Obtener el tipo de vehículo correspondiente
-            if (vehicle != null)
-            {
-                var vehicleTypeQuery = new QueryBuilder()
-                    .Select("*")
-                    .From("vehicle_type")
-                    .Where($"idVehicleType = {vehicle.idVehicleType}")
-                    .Build();
-
-                var vehicleType = _dataAccess.QueryFirstOrDefault<VehicleType>(vehicleTypeQuery);
-                vehicle.vehicleType = vehicleType;
-            }
-
             return vehicle;
+        }
+
+
+        //Método para obtener los vehiculos que cumplen con los criterios de busqueda
+        public IEnumerable<Vehicle> GetAllVehiclesByCriteria(CriteriaDTO cirteriaDTO) {
+            var vehicles = _dataAccess.ExecuteStoredProcedure<Vehicle>("PRO_GetAllVehiclesByCriteria", cirteriaDTO);
+
+            return vehicles;
         }
 
         // Método para actualizar un vehículo existente
@@ -91,7 +72,7 @@ namespace CONSWARE_Vhicles.Services
         {
             var query = new QueryBuilder()
                 .Update("vehicle")
-                .Set($"idVehicleType = {vehicle.idVehicleType}, name = {vehicle.name}, creationDate = '{vehicle.creationDate.ToString("yyyy-MM-dd HH:mm:ss")}', updateDate = '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}', active = {Convert.ToInt32(vehicle.active)}")
+                .Set($"name = '{vehicle.name}', creationDate = '{vehicle.creationDate.ToString("yyyy-MM-dd HH:mm:ss")}', updateDate = '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}', active = {Convert.ToInt32(vehicle.active)}")
                 .Where($"idVehicle = {vehicle.idVehicle}")
                 .Build();
 

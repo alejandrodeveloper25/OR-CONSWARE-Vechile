@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using Dapper;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
@@ -76,6 +77,22 @@ namespace CONSWARE_Vhicles.Data
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al obtener el último ID insertado: {ex.Message}");
+                throw;
+            }
+        }
+
+        public IEnumerable<T> ExecuteStoredProcedure<T>(string storedProcedureName, object parameters = null)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+
+                return connection.Query<T>(storedProcedureName, parameters, commandType: CommandType.StoredProcedure);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al ejecutar el procedimiento almacenado: {ex.Message}");
                 throw;
             }
         }

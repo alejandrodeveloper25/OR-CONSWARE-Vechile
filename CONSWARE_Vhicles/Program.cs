@@ -23,9 +23,18 @@ builder.Services.AddScoped<VehicleDetailsService>();
 
 var app = builder.Build();
 
+// Configurar CORS
+app.UseCors(options =>
+{
+    options.AllowAnyOrigin()
+           .AllowAnyHeader()
+           .AllowAnyMethod();
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }

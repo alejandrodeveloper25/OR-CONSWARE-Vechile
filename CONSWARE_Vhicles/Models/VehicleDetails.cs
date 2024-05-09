@@ -9,6 +9,9 @@ namespace CONSWARE_Vhicles.Models
 
         public int idVehicle { get; set; }
 
+        public int idVehicleType { get; set; }
+        public VehicleType vehicleType { get; set; }
+
         public int idFuelType { get; set; }
         public FuelType fuelType { get; set; }
 
@@ -16,7 +19,7 @@ namespace CONSWARE_Vhicles.Models
 
         public int model { get; set; }
 
-        public float cylinderCapacity { get; set; }
+        public decimal cylinderCapacity { get; set; }
 
         public int seating { get; set; }
 
@@ -24,7 +27,7 @@ namespace CONSWARE_Vhicles.Models
 
         public bool manual { get; set; }
 
-        public float price { get; set; }
+        public decimal price { get; set; }
 
         public string urlImg { get; set; }
 

@@ -26,6 +26,13 @@ namespace CONSWARE_Vhicles.Controllers
             return Ok(vehicles);
         }
 
+        [HttpPost("criteria")]
+        public IActionResult GetAllVehiclesByCriteria(CriteriaDTO criteriaDTO)
+        {
+            var vehicles = _vehicleService.GetAllVehiclesByCriteria(criteriaDTO);
+            return Ok(vehicles);
+        }
+
         [HttpGet("{id}")]
         public IActionResult GetVehicleByID(int id)
         {
@@ -53,8 +60,31 @@ namespace CONSWARE_Vhicles.Controllers
         [HttpPost]
         public IActionResult createVechile([FromBody] CreateOrUpdateVehicleDTO createVehicleDTO)
         {
-            var vehicle = _vehicleService.CreateVehicle(createVehicleDTO.Vehicle);
+
+            var newVehicle = new Vehicle();
+            var newVechileDetails = new VehicleDetails();
+
+            newVehicle.name = createVehicleDTO.name;
+
+            var vehicle = _vehicleService.CreateVehicle(newVehicle);
             if (vehicle == null)
+            {
+                return NotFound();
+            }
+
+            newVechileDetails.idVehicle = vehicle.idVehicle;
+            newVechileDetails.idFuelType = createVehicleDTO.idFuelType;
+            newVechileDetails.idVehicleType = createVehicleDTO.idVehicleType;
+            newVechileDetails.brand = createVehicleDTO.brand;
+            newVechileDetails.model = createVehicleDTO.model;
+            newVechileDetails.cylinderCapacity = createVehicleDTO.cylinderCapacity;
+            newVechileDetails.seating = createVehicleDTO.seating;
+            newVechileDetails.automatic = createVehicleDTO.automatic;
+            newVechileDetails.manual = createVehicleDTO.manual;
+            newVechileDetails.price = createVehicleDTO.price;
+
+            var vehicleDetails = _vehicleDetailsService.CreateVehicleDetails(newVechileDetails);
+            if (vehicleDetails == null)
             {
                 return NotFound();
             }
@@ -62,25 +92,54 @@ namespace CONSWARE_Vhicles.Controllers
             return Ok(vehicle);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult createVechile([FromQuery] int id, [FromBody] CreateOrUpdateVehicleDTO updateVehicleDTO)
+        [HttpPut]
+        public IActionResult EditVechile([FromQuery] int id, [FromBody] CreateOrUpdateVehicleDTO updateVehicleDTO)
         {
-            var vechicleUpdate = _vehicleService.UpdateVehicle(updateVehicleDTO.Vehicle);
-            if (vechicleUpdate == null)
+
+            var vehicle = _vehicleService.GetVehicleById(id);
+            if (vehicle == null)
             {
                 return NotFound();
             }
 
-            return Ok(vechicleUpdate);
+            var vehicleDetails = _vehicleDetailsService.GetVehicleDetailsByIdVechile(vehicle.idVehicle);
+
+            vehicleDetails.idVehicleType = updateVehicleDTO.idVehicleType;
+            vehicleDetails.idFuelType = updateVehicleDTO.idFuelType;
+            vehicleDetails.brand = updateVehicleDTO.brand;
+            vehicleDetails.model = updateVehicleDTO.model;
+            vehicleDetails.cylinderCapacity = updateVehicleDTO.cylinderCapacity;
+            vehicleDetails.seating = updateVehicleDTO.seating;
+            vehicleDetails.automatic = updateVehicleDTO.automatic;
+            vehicleDetails.manual = updateVehicleDTO.manual;
+            vehicleDetails.price = updateVehicleDTO.price;
+
+            vehicleDetails = _vehicleDetailsService.UpdateVehicleDetails(vehicleDetails);
+
+            vehicle.name = updateVehicleDTO.name;
+            vehicle.updateDate = new DateTime();
+
+            vehicle = _vehicleService.UpdateVehicle(vehicle);
+
+            return Ok(vehicle);
         }
 
-        [HttpPost("{id}")]
-        public IActionResult deleteVehicle([FromQuery] int id)
+        [HttpPost("{id}/delete")]
+        public IActionResult deleteVehicle(int id)
         {
+            var vehicle = _vehicleService.GetVehicleById(id);
+            if (vehicle == null)
+            {
+                return NotFound();
+            }
 
-           
 
-            return Ok("");
+            vehicle.updateDate = new DateTime();
+            vehicle.active = false;
+
+            vehicle = _vehicleService.UpdateVehicle(vehicle);
+
+            return Ok(vehicle);
         }
     }
 }
